@@ -55,14 +55,16 @@ export const fetchCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue, getState }) => {
     try {
       const { auth } = getState();
+      if (!auth.token) {
+        throw new Error('Token is missing');
+      }
       const response = await fetchCurrent(auth.token);
       return response;
-    } catch ({ response }) {
-      const error = {
-        status: response.status,
-        message: response.data.message,
-      };
-      return rejectWithValue(error);
+    } catch (error) {
+      return rejectWithValue({
+        status: 401,
+        message: error.message,
+      });
     }
   }
 );
